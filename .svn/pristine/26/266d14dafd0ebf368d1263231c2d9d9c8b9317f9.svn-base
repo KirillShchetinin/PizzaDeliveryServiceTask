@@ -32,8 +32,7 @@ public class PizzaTest extends ExtendedConfig{
         List<Pizza> pizzas = pizzaService.getAllPizzas();
         
         Order newOrder1 = orderService.createNewOrder();
-        //newOrder1.addItems(pizzas.get(0), pizzas.get(1));
-        newOrder1.setPizass(pizzas);
+        newOrder1.addItems(pizzas.get(0), pizzas.get(1));
         orderService.placeOrder(newOrder1);
         
         Order newOrder2 = orderService.createNewOrder();
@@ -45,7 +44,6 @@ public class PizzaTest extends ExtendedConfig{
         for (Order or : orders) {
             System.out.println(or.getPizass().get(0).getName() + " " + or.getPizass().get(0).getType());
         }
-        assertNotNull(orderService.getAllOrders());
     }
 }
 
