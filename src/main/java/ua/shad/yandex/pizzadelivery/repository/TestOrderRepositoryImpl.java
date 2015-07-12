@@ -8,8 +8,9 @@ package ua.shad.yandex.pizzadelivery.repository;
 import ua.shad.yandex.pizzadelivery.domain.Order;
 import java.util.LinkedList;
 import java.util.List;
+import org.springframework.stereotype.Repository;
 
-
+@Repository("orderRepo")
 public class TestOrderRepositoryImpl implements OrderRepository {
 
     public List<Order> list;

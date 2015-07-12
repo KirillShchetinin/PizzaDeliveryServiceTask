@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:/springConfig.xml")
+@ContextConfiguration(locations = "classpath:/springConfig.xml",inheritLocations = true)
 abstract class ExtendedConfig extends BaseConfig{
     
 }

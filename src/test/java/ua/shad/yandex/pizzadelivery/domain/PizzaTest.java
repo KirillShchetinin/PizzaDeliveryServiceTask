@@ -6,15 +6,9 @@
 package ua.shad.yandex.pizzadelivery.domain;
 
 import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ua.shad.yandex.pizzadelivery.service.OrderService;
 import ua.shad.yandex.pizzadelivery.service.PizzaService;
 
