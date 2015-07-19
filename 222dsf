@@ -1,0 +1,1648 @@
+[33mcommit a2849a2f6ea9425c4b4d74c67c9b5a2be7bdd54f[m
+Author: Kirill Shchetinin <kirya2604@gmail.com>
+Date:   Sun Jul 12 23:18:26 2015 +0300
+
+    checked. Web added
+
+[1mdiff --git a/nb-configuration.xml b/nb-configuration.xml[m
+[1mindex d1569dc..cb282c5 100644[m
+[1m--- a/nb-configuration.xml[m
+[1m+++ b/nb-configuration.xml[m
+[36m@@ -18,6 +18,7 @@[m
+     <spring-data xmlns="http://www.netbeans.org/ns/spring-data/1">[m
+         <config-files>[m
+             <config-file>src/main/resources/repConfig.xml</config-file>[m
+[32m+[m[32m            <config-file>src/main/webapp/WEB-INF/webContext.xml</config-file>[m
+         </config-files>[m
+         <config-file-groups/>[m
+     </spring-data>[m
+[1mdiff --git a/pom.xml b/pom.xml[m
+[1mindex 5e4a2cc..90e830d 100644[m
+[1m--- a/pom.xml[m
+[1m+++ b/pom.xml[m
+[36m@@ -4,7 +4,7 @@[m
+     <groupId>ua.shad.uandex</groupId>[m
+     <artifactId>PizzaDeliveryServiceTask</artifactId>[m
+     <version>1.0-SNAPSHOT</version>[m
+[31m-    <packaging>jar</packaging>[m
+[32m+[m[32m    <packaging>war</packaging>[m
+     <properties>[m
+         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>[m
+         <maven.compiler.source>1.7</maven.compiler.source>[m
+[36m@@ -31,7 +31,11 @@[m
+             <version>4.1.6.RELEASE</version>[m
+             <type>jar</type>[m
+         </dependency>[m
+[31m-[m
+[32m+[m[32m        <dependency>[m
+[32m+[m[32m            <groupId>org.springframework</groupId>[m
+[32m+[m[32m            <artifactId>spring-webmvc</artifactId>[m
+[32m+[m[32m            <version>4.1.6.RELEASE</version>[m
+[32m+[m[32m        </dependency>[m
+         <dependency>[m
+             <groupId>org.springframework</groupId>[m
+             <artifactId>spring-jdbc</artifactId>[m
+[36m@@ -44,4 +48,14 @@[m
+             <scope>test</scope>[m
+         </dependency>[m
+     </dependencies>[m
+[32m+[m[32m    <build>[m
+[32m+[m[32m        <finalName>PizzaWebApp</finalName>[m
+[32m+[m[32m        <plugins>[m
+[32m+[m[32m            <plugin>[m
+[32m+[m[32m                <groupId>org.apache.tomcat.maven</groupId>[m
+[32m+[m[32m                <artifactId>tomcat7-maven-plugin</artifactId>[m
+[32m+[m[32m                <version>2.2</version>[m
+[32m+[m[32m            </plugin>[m
+[32m+[m[32m        </plugins>[m
+[32m+[m[32m    </build>[m
+ </project>[m
+\ No newline at end of file[m
+[1mdiff --git a/src/main/java/ua/shad/yandex/pizzadelivery/repository/TestOrderRepositoryImpl.java b/src/main/java/ua/shad/yandex/pizzadelivery/repository/TestOrderRepositoryImpl.java[m
+[1mindex d28d0ee..912483d 100644[m
+[1m--- a/src/main/java/ua/shad/yandex/pizzadelivery/repository/TestOrderRepositoryImpl.java[m
+[1m+++ b/src/main/java/ua/shad/yandex/pizzadelivery/repository/TestOrderRepositoryImpl.java[m
+[36m@@ -8,8 +8,9 @@[m [mpackage ua.shad.yandex.pizzadelivery.repository;[m
+ import ua.shad.yandex.pizzadelivery.domain.Order;[m
+ import java.util.LinkedList;[m
+ import java.util.List;[m
+[32m+[m[32mimport org.springframework.stereotype.Repository;[m
+ [m
+[31m-[m
+[32m+[m[32m@Repository("orderRepo")[m
+ public class TestOrderRepositoryImpl implements OrderRepository {[m
+ [m
+     public List<Order> list;[m
+[1mdiff --git a/src/main/java/ua/shad/yandex/pizzadelivery/service/SimpleOrderService.java b/src/main/java/ua/shad/yandex/pizzadelivery/service/SimpleOrderService.java[m
+[1mindex 993f258..a1bde1c 100644[m
+[1m--- a/src/main/java/ua/shad/yandex/pizzadelivery/service/SimpleOrderService.java[m
+[1m+++ b/src/main/java/ua/shad/yandex/pizzadelivery/service/SimpleOrderService.java[m
+[36m@@ -8,15 +8,15 @@[m [mpackage ua.shad.yandex.pizzadelivery.service;[m
+ import ua.shad.yandex.pizzadelivery.domain.Order;[m
+ import java.util.List;[m
+ import org.springframework.beans.factory.annotation.Autowired;[m
+[31m-import org.springframework.stereotype.Repository;[m
+ import ua.shad.yandex.pizzadelivery.repository.OrderRepository;[m
+ [m
+[31m-@Repository("orderService")[m
+[32m+[m
+ public abstract class SimpleOrderService implements OrderService {[m
+ [m
+     private OrderRepository base;[m
+ [m
+[31m-    @Autowired public SimpleOrderService(OrderRepository base) {[m
+[32m+[m[32m    @Autowired[m[41m [m
+[32m+[m[32m    public SimpleOrderService(OrderRepository base) {[m
+         this.base = base;[m
+     }[m
+ [m
+[1mdiff --git a/src/main/java/ua/shad/yandex/web/PizzaRestController.java b/src/main/java/ua/shad/yandex/web/PizzaRestController.java[m
+[1mnew file mode 100644[m
+[1mindex 0000000..4f66c4e[m
+[1m--- /dev/null[m
+[1m+++ b/src/main/java/ua/shad/yandex/web/PizzaRestController.java[m
+[36m@@ -0,0 +1,23 @@[m
+[32m+[m[32m/*[m
+[32m+[m[32m * To change this license header, choose License Headers in Project Properties.[m
+[32m+[m[32m * To change this template file, choose Tools | Templates[m
+[32m+[m[32m * and open the template in the editor.[m
+[32m+[m[32m */[m
+[32m+[m[32mpackage ua.shad.yandex.web;[m
+[32m+[m
+[32m+[m[32mimport org.springframework.web.bind.annotation.RequestMapping;[m
+[32m+[m[32mimport org.springframework.web.bind.annotation.RequestMethod;[m
+[32m+[m[32mimport org.springframework.web.bind.annotation.RestController;[m
+[32m+[m
+[32m+[m[32m/**[m
+[32m+[m[32m *[m
+[32m+[m[32m * @author Кирилл[m
+[32m+[m[32m */[m
+[32m+[m
+[32m+[m[32m@RestController[m
+[32m+[m[32mpublic class PizzaRestController {[m
+[32m+[m[32m    @RequestMapping(method = RequestMethod.GET, value = "hello")[m
+[32m+[m[32m    public String hello(){[m
+[32m+[m[32m        return "Hello from RESTcontroller";[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/src/main/resources/repConfig.xml b/src/main/resources/repConfig.xml[m
+[1mindex c329c1b..c7e8034 100644[m
+[1m--- a/src/main/resources/repConfig.xml[m
+[1m+++ b/src/main/resources/repConfig.xml[m
+[36m@@ -1,17 +1,31 @@[m
+ <?xml version="1.0" encoding="UTF-8"?>[m
+[32m+[m[32m<!--<?xml version="1.0" encoding="UTF-8"?>[m
+ <beans xmlns="http://www.springframework.org/schema/beans"[m
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"[m
+[31m-       xmlns:context = "http://www.springframework.org/schema/context"[m
+[31m-       xsi:schemaLocation="[m
+[31m-    http://www.springframework.org/schema/beans [m
+[31m-    http://www.springframework.org/schema/beans/spring-beans.xsd[m
+[31m-    http://www.springframework.org/schema/context [m
+[31m-    http://www.springframework.org/schema/context/spring-context.xsd">  [m
+[32m+[m
+[32m+[m[32m       xsi:schemaLocation=[m
+[32m+[m[32m        "http://www.springframework.org/schema/beans[m[41m [m
+[32m+[m[32m        http://www.springframework.org/schema/beans/spring-beans-4.1.xsd[m
+[32m+[m[32m"> !-->[m
+[32m+[m[32m<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"[m
+[32m+[m[32m       xmlns:context="http://www.springframework.org/schema/context"[m
+[32m+[m[32m       xsi:schemaLocation="http://www.springframework.org/schema/beans[m[41m [m
+[32m+[m[32m                    http://www.springframework.org/schema/beans/spring-beans-4.1.xsd[m
+[32m+[m[32m                    http://www.springframework.org/schema/context[m[41m [m
+[32m+[m[32m                    http://www.springframework.org/schema/context/spring-context.xsd">[m
+[32m+[m[32m    <context:component-scan base-package="ua.shad.yandex.pizzadelivery.service"/>[m
+[32m+[m[32m    <!-- <bean name="pizzaService" class="ua.shad.yandex.pizzadelivery.service.SimplePIzzaService">[m
+[32m+[m[32m        <constructor-arg ref="pizzRepo"/>[m
+[32m+[m[32m    </bean> !-->[m
+     [m
+[31m-    <context:component-scan base-package="ua.shad.yandex.pizzadelivery.service" />[m
+     <bean name="orderService" class="ua.shad.yandex.pizzadelivery.service.SimpleOrderService">[m
+         <lookup-method name="createNewOrder" bean="order"/>  [m
+     </bean>[m
+[31m-    <context:component-scan base-package="ua.shad.yandex.pizzadelivery.domain" />[m
+[31m-</beans>[m
+[32m+[m[41m    [m
+[32m+[m[32m    <!--<bean id="order" class="ua.shad.yandex.pizzadelivery.domain.Order" scope="prototype">[m
+[32m+[m[32m    </bean> !-->[m
+ [m
+[32m+[m[32m    <context:component-scan base-package="ua.shad.yandex.pizzadelivery.domain">[m
+[32m+[m[41m        [m
+[32m+[m[32m    </context:component-scan>[m
+[32m+[m[32m</beans>[m
+[1mdiff --git a/src/main/resources/springConfig.xml b/src/main/resources/springConfig.xml[m
+[1mindex db0d34a..beee30b 100644[m
+[1m--- a/src/main/resources/springConfig.xml[m
+[1m+++ b/src/main/resources/springConfig.xml[m
+[36m@@ -1,13 +1,19 @@[m
+ <?xml version="1.0" encoding="UTF-8"?>[m
+[32m+[m[32m<!--<?xml version="1.0" encoding="UTF-8"?>[m
+ <beans xmlns="http://www.springframework.org/schema/beans"[m
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"[m
+[31m-       xmlns:context = "http://www.springframework.org/schema/context"[m
+[31m-       xsi:schemaLocation="[m
+[31m-    http://www.springframework.org/schema/beans [m
+[31m-    http://www.springframework.org/schema/beans/spring-beans.xsd[m
+[31m-    http://www.springframework.org/schema/context [m
+[31m-    http://www.springframework.org/schema/context/spring-context.xsd">[m
+[32m+[m
+[32m+[m[32m   xsi:schemaLocation="[m
+[32m+[m[32mhttp://www.springframework.org/schema/beans[m[41m [m
+[32m+[m[32mhttp://www.springframework.org/schema/beans/spring-beans.xsd">!-->[m
+[32m+[m[32m<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"[m
+[32m+[m[32m       xmlns:context="http://www.springframework.org/schema/context"[m
+[32m+[m[32m       xsi:schemaLocation="http://www.springframework.org/schema/beans[m[41m [m
+[32m+[m[32m                    http://www.springframework.org/schema/beans/spring-beans-4.1.xsd[m
+[32m+[m[32m                    http://www.springframework.org/schema/context[m[41m [m
+[32m+[m[32m                    http://www.springframework.org/schema/context/spring-context.xsd">[m
+     <context:component-scan base-package="ua.shad.yandex.pizzadelivery.repository"/>[m
+[32m+[m[41m     [m
+     <bean name = "pizzRepo" class = "ua.shad.yandex.pizzadelivery.repository.TestPizzaRepositoryImpl">[m
+         <property name="pizzas">[m
+             <list>[m
+[36m@@ -24,5 +30,8 @@[m
+             </list>[m
+         </property>[m
+     </bean>[m
+[31m-    <bean name = "orderRepo" class = "ua.shad.yandex.pizzadelivery.repository.TestOrderRepositoryImpl"/>[m
+[32m+[m[32m    <!-- <bean name = "orderRepo" class = "ua.shad.yandex.pizzadelivery.repository.TestOrderRepositoryImpl"/>[m
+[32m+[m[32m    !-->[m
+[32m+[m
+[32m+[m
+ </beans>[m
+[1mdiff --git a/src/main/webapp/WEB-INF/web.xml b/src/main/webapp/WEB-INF/web.xml[m
+[1mnew file mode 100644[m
+[1mindex 0000000..3a93293[m
+[1m--- /dev/null[m
+[1m+++ b/src/main/webapp/WEB-INF/web.xml[m
+[36m@@ -0,0 +1,24 @@[m
+[32m+[m[32m<?xml version="1.0" encoding="UTF-8"?>[m
+[32m+[m[32m<web-app version="3.0"[m[41m [m
+[32m+[m[32m         xmlns="http://xmlms.jsp.org/xml/ns/javaee"[m
+[32m+[m[32m         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"[m
+[32m+[m[32m         xsi:scheamaLocation="http://xmlms.jsp.org/xml/ns/javaee[m
+[32m+[m[32m            http://xmlms.jsp.org/xml/ns/javaee/web-app_3_1.xsd">[m
+[32m+[m[41m    [m
+[32m+[m[32m    <session-config>[m
+[32m+[m[32m        <session-timeout>30</session-timeout>[m
+[32m+[m[32m    </session-config>[m
+[32m+[m[41m    [m
+[32m+[m[32m    <servlet>[m
+[32m+[m[32m        <servlet-name>dispatcherServlet</servlet-name>[m
+[32m+[m[32m        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m            <param-name>contextConfigLocation</param-name>[m
+[32m+[m[32m            <param-value>/WEB-INF/webContext.xml</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m    </servlet>[m
+[32m+[m[32m    <servlet-mapping>[m
+[32m+[m[32m        <servlet-name>dispatcherServlet</servlet-name>[m
+[32m+[m[32m        <url-pattern>/pages/*</url-pattern>[m
+[32m+[m[32m    </servlet-mapping>[m
+[32m+[m[32m</web-app>[m
+[1mdiff --git a/src/main/webapp/WEB-INF/webContext.xml b/src/main/webapp/WEB-INF/webContext.xml[m
+[1mnew file mode 100644[m
+[1mindex 0000000..9beee35[m
+[1m--- /dev/null[m
+[1m+++ b/src/main/webapp/WEB-INF/webContext.xml[m
+[36m@@ -0,0 +1,16 @@[m
+[32m+[m[32m<?xml version="1.0" encoding="UTF-8"?>[m
+[32m+[m[32m<beans xmlns="http://www.springframework.org/schema/beans"[m
+[32m+[m[32m       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"[m
+[32m+[m[32m       xmlns:context="http://www.springframework.org/schema/context"[m
+[32m+[m[32m       xmlns:mvc="http://www.springframework.org/schema/mvc"[m
+[32m+[m[32m       xsi:schemaLocation=[m
+[32m+[m[32m        "http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd[m
+[32m+[m[32m         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd[m
+[32m+[m[32m         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd[m
+[32m+[m[32m        ">[m
+[32m+[m[41m    [m
+[32m+[m[32m    <context:component-scan base-package="ua.epam.rd.web" />[m
+[32m+[m[41m    [m
+[32m+[m[32m    <mvc:annotation-driven />[m
+[32m+[m
+[32m+[m[32m</beans>[m
+[1mdiff --git a/src/main/webapp/index.html b/src/main/webapp/index.html[m
+[1mnew file mode 100644[m
+[1mindex 0000000..da4b088[m
+[1m--- /dev/null[m
+[1m+++ b/src/main/webapp/index.html[m
+[36m@@ -0,0 +1,11 @@[m
+[32m+[m[32m<!DOCTYPE html>[m
+[32m+[m[32m<html>[m
+[32m+[m[32m    <head>[m
+[32m+[m[32m        <title>JAVA WEB APPLICATION</title>[m
+[32m+[m[32m        <meta charset="UTF-8">[m
+[32m+[m[32m        <meta name="viewport" content="width=device-width, initial-scale=1.0">[m
+[32m+[m[32m    </head>[m
+[32m+[m[32m    <body>[m
+[32m+[m[32m        <h1>Pizza DeliverySystem! WELCOME!</h1>[m
+[32m+[m[32m    </body>[m
+[32m+[m[32m</html>[m
+[1mdiff --git a/src/test/java/ua/shad/yandex/pizzadelivery/domain/ExtendedConfig.java b/src/test/java/ua/shad/yandex/pizzadelivery/domain/ExtendedConfig.java[m
+[1mindex 019c697..4e00987 100644[m
+[1m--- a/src/test/java/ua/shad/yandex/pizzadelivery/domain/ExtendedConfig.java[m
+[1m+++ b/src/test/java/ua/shad/yandex/pizzadelivery/domain/ExtendedConfig.java[m
+[36m@@ -11,7 +11,7 @@[m [mimport org.springframework.test.context.junit4.SpringJUnit4ClassRunner;[m
+ [m
+ [m
+ @RunWith(SpringJUnit4ClassRunner.class)[m
+[31m-@ContextConfiguration(locations = "classpath:/springConfig.xml")[m
+[32m+[m[32m@ContextConfiguration(locations = "classpath:/springConfig.xml",inheritLocations = true)[m
+ abstract class ExtendedConfig extends BaseConfig{[m
+     [m
+ }[m
+[1mdiff --git a/src/test/java/ua/shad/yandex/pizzadelivery/domain/PizzaTest.java b/src/test/java/ua/shad/yandex/pizzadelivery/domain/PizzaTest.java[m
+[1mindex d019879..ff6c9ac 100644[m
+[1m--- a/src/test/java/ua/shad/yandex/pizzadelivery/domain/PizzaTest.java[m
+[1m+++ b/src/test/java/ua/shad/yandex/pizzadelivery/domain/PizzaTest.java[m
+[36m@@ -6,15 +6,9 @@[m
+ package ua.shad.yandex.pizzadelivery.domain;[m
+ [m
+ import java.util.List;[m
+[31m-import org.junit.After;[m
+[31m-import org.junit.AfterClass;[m
+[31m-import org.junit.Before;[m
+[31m-import org.junit.BeforeClass;[m
+ import org.junit.Test;[m
+ import static org.junit.Assert.*;[m
+ import org.springframework.beans.factory.annotation.Autowired;[m
+[31m-import org.springframework.context.ConfigurableApplicationContext;[m
+[31m-import org.springframework.context.support.ClassPathXmlApplicationContext;[m
+ import ua.shad.yandex.pizzadelivery.service.OrderService;[m
+ import ua.shad.yandex.pizzadelivery.service.PizzaService;[m
+ [m
+[1mdiff --git a/target/classes/repConfig.xml b/target/classes/repConfig.xml[m
+[1mindex c329c1b..c7e8034 100644[m
+[1m--- a/target/classes/repConfig.xml[m
+[1m+++ b/target/classes/repConfig.xml[m
+[36m@@ -1,17 +1,31 @@[m
+ <?xml version="1.0" encoding="UTF-8"?>[m
+[32m+[m[32m<!--<?xml version="1.0" encoding="UTF-8"?>[m
+ <beans xmlns="http://www.springframework.org/schema/beans"[m
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"[m
+[31m-       xmlns:context = "http://www.springframework.org/schema/context"[m
+[31m-       xsi:schemaLocation="[m
+[31m-    http://www.springframework.org/schema/beans [m
+[31m-    http://www.springframework.org/schema/beans/spring-beans.xsd[m
+[31m-    http://www.springframework.org/schema/context [m
+[31m-    http://www.springframework.org/schema/context/spring-context.xsd">  [m
+[32m+[m
+[32m+[m[32m       xsi:schemaLocation=[m
+[32m+[m[32m        "http://www.springframework.org/schema/beans[m[41m [m
+[32m+[m[32m        http://www.springframework.org/schema/beans/spring-beans-4.1.xsd[m
+[32m+[m[32m"> !-->[m
+[32m+[m[32m<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"[m
+[32m+[m[32m       xmlns:context="http://www.springframework.org/schema/context"[m
+[32m+[m[32m       xsi:schemaLocation="http://www.springframework.org/schema/beans[m[41m [m
+[32m+[m[32m                    http://www.springframework.org/schema/beans/spring-beans-4.1.xsd[m
+[32m+[m[32m                    http://www.springframework.org/schema/context[m[41m [m
+[32m+[m[32m                    http://www.springframework.org/schema/context/spring-context.xsd">[m
+[32m+[m[32m    <context:component-scan base-package="ua.shad.yandex.pizzadelivery.service"/>[m
+[32m+[m[32m    <!-- <bean name="pizzaService" class="ua.shad.yandex.pizzadelivery.service.SimplePIzzaService">[m
+[32m+[m[32m        <constructor-arg ref="pizzRepo"/>[m
+[32m+[m[32m    </bean> !-->[m
+     [m
+[31m-    <context:component-scan base-package="ua.shad.yandex.pizzadelivery.service" />[m
+     <bean name="orderService" class="ua.shad.yandex.pizzadelivery.service.SimpleOrderService">[m
+         <lookup-method name="createNewOrder" bean="order"/>  [m
+     </bean>[m
+[31m-    <context:component-scan base-package="ua.shad.yandex.pizzadelivery.domain" />[m
+[31m-</beans>[m
+[32m+[m[41m    [m
+[32m+[m[32m    <!--<bean id="order" class="ua.shad.yandex.pizzadelivery.domain.Order" scope="prototype">[m
+[32m+[m[32m    </bean> !-->[m
+ [m
+[32m+[m[32m    <context:component-scan base-package="ua.shad.yandex.pizzadelivery.domain">[m
+[32m+[m[41m        [m
+[32m+[m[32m    </context:component-scan>[m
+[32m+[m[32m</beans>[m
+[1mdiff --git a/target/classes/springConfig.xml b/target/classes/springConfig.xml[m
+[1mindex db0d34a..beee30b 100644[m
+[1m--- a/target/classes/springConfig.xml[m
+[1m+++ b/target/classes/springConfig.xml[m
+[36m@@ -1,13 +1,19 @@[m
+ <?xml version="1.0" encoding="UTF-8"?>[m
+[32m+[m[32m<!--<?xml version="1.0" encoding="UTF-8"?>[m
+ <beans xmlns="http://www.springframework.org/schema/beans"[m
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"[m
+[31m-       xmlns:context = "http://www.springframework.org/schema/context"[m
+[31m-       xsi:schemaLocation="[m
+[31m-    http://www.springframework.org/schema/beans [m
+[31m-    http://www.springframework.org/schema/beans/spring-beans.xsd[m
+[31m-    http://www.springframework.org/schema/context [m
+[31m-    http://www.springframework.org/schema/context/spring-context.xsd">[m
+[32m+[m
+[32m+[m[32m   xsi:schemaLocation="[m
+[32m+[m[32mhttp://www.springframework.org/schema/beans[m[41m [m
+[32m+[m[32mhttp://www.springframework.org/schema/beans/spring-beans.xsd">!-->[m
+[32m+[m[32m<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"[m
+[32m+[m[32m       xmlns:context="http://www.springframework.org/schema/context"[m
+[32m+[m[32m       xsi:schemaLocation="http://www.springframework.org/schema/beans[m[41m [m
+[32m+[m[32m                    http://www.springframework.org/schema/beans/spring-beans-4.1.xsd[m
+[32m+[m[32m                    http://www.springframework.org/schema/context[m[41m [m
+[32m+[m[32m                    http://www.springframework.org/schema/context/spring-context.xsd">[m
+     <context:component-scan base-package="ua.shad.yandex.pizzadelivery.repository"/>[m
+[32m+[m[41m     [m
+     <bean name = "pizzRepo" class = "ua.shad.yandex.pizzadelivery.repository.TestPizzaRepositoryImpl">[m
+         <property name="pizzas">[m
+             <list>[m
+[36m@@ -24,5 +30,8 @@[m
+             </list>[m
+         </property>[m
+     </bean>[m
+[31m-    <bean name = "orderRepo" class = "ua.shad.yandex.pizzadelivery.repository.TestOrderRepositoryImpl"/>[m
+[32m+[m[32m    <!-- <bean name = "orderRepo" class = "ua.shad.yandex.pizzadelivery.repository.TestOrderRepositoryImpl"/>[m
+[32m+[m[32m    !-->[m
+[32m+[m
+[32m+[m
+ </beans>[m
+[1mdiff --git a/target/classes/ua/shad/yandex/pizzadelivery/repository/TestOrderRepositoryImpl.class b/target/classes/ua/shad/yandex/pizzadelivery/repository/TestOrderRepositoryImpl.class[m
+[1mindex cf1dc1b..59992d2 100644[m
+Binary files a/target/classes/ua/shad/yandex/pizzadelivery/repository/TestOrderRepositoryImpl.class and b/target/classes/ua/shad/yandex/pizzadelivery/repository/TestOrderRepositoryImpl.class differ
+[1mdiff --git a/target/classes/ua/shad/yandex/pizzadelivery/service/SimpleOrderService.class b/target/classes/ua/shad/yandex/pizzadelivery/service/SimpleOrderService.class[m
+[1mindex 33a4daf..6260750 100644[m
+Binary files a/target/classes/ua/shad/yandex/pizzadelivery/service/SimpleOrderService.class and b/target/classes/ua/shad/yandex/pizzadelivery/service/SimpleOrderService.class differ
+[1mdiff --git a/target/classes/ua/shad/yandex/web/PizzaRestController.class b/target/classes/ua/shad/yandex/web/PizzaRestController.class[m
+[1mnew file mode 100644[m
+[1mindex 0000000..ff36ce0[m
+Binary files /dev/null and b/target/classes/ua/shad/yandex/web/PizzaRestController.class differ
+[1mdiff --git a/target/tomcat/conf/tomcat-users.xml b/target/tomcat/conf/tomcat-users.xml[m
+[1mnew file mode 100644[m
+[1mindex 0000000..7114f5d[m
+[1m--- /dev/null[m
+[1m+++ b/target/tomcat/conf/tomcat-users.xml[m
+[36m@@ -0,0 +1,26 @@[m
+[32m+[m[32m<?xml version='1.0' encoding='utf-8'?>[m
+[32m+[m[32m<!--[m
+[32m+[m[32m  Licensed to the Apache Software Foundation (ASF) under one or more[m
+[32m+[m[32m  contributor license agreements.  See the NOTICE file distributed with[m
+[32m+[m[32m  this work for additional information regarding copyright ownership.[m
+[32m+[m[32m  The ASF licenses this file to You under the Apache License, Version 2.0[m
+[32m+[m[32m  (the "License"); you may not use this file except in compliance with[m
+[32m+[m[32m  the License.  You may obtain a copy of the License at[m
+[32m+[m
+[32m+[m[32m      http://www.apache.org/licenses/LICENSE-2.0[m
+[32m+[m
+[32m+[m[32m  Unless required by applicable law or agreed to in writing, software[m
+[32m+[m[32m  distributed under the License is distributed on an "AS IS" BASIS,[m
+[32m+[m[32m  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[m
+[32m+[m[32m  See the License for the specific language governing permissions and[m
+[32m+[m[32m  limitations under the License.[m
+[32m+[m[32m-->[m
+[32m+[m[32m<tomcat-users>[m
+[32m+[m[32m<!--[m
+[32m+[m[32m  <role rolename="tomcat"/>[m
+[32m+[m[32m  <role rolename="role1"/>[m
+[32m+[m[32m  <user username="tomcat" password="tomcat" roles="tomcat"/>[m
+[32m+[m[32m  <user username="both" password="tomcat" roles="tomcat,role1"/>[m
+[32m+[m[32m  <user username="role1" password="tomcat" roles="role1"/>[m
+[32m+[m[32m-->[m
+[32m+[m[32m</tomcat-users>[m
+[1mdiff --git a/target/tomcat/conf/web.xml b/target/tomcat/conf/web.xml[m
+[1mnew file mode 100644[m
+[1mindex 0000000..679abd7[m
+[1m--- /dev/null[m
+[1m+++ b/target/tomcat/conf/web.xml[m
+[36m@@ -0,0 +1,1200 @@[m
+[32m+[m[32m<?xml version="1.0" encoding="ISO-8859-1"?>[m
+[32m+[m[32m<!--[m
+[32m+[m[32m  Licensed to the Apache Software Foundation (ASF) under one or more[m
+[32m+[m[32m  contributor license agreements.  See the NOTICE file distributed with[m
+[32m+[m[32m  this work for additional information regarding copyright ownership.[m
+[32m+[m[32m  The ASF licenses this file to You under the Apache License, Version 2.0[m
+[32m+[m[32m  (the "License"); you may not use this file except in compliance with[m
+[32m+[m[32m  the License.  You may obtain a copy of the License at[m
+[32m+[m
+[32m+[m[32m      http://www.apache.org/licenses/LICENSE-2.0[m
+[32m+[m
+[32m+[m[32m  Unless required by applicable law or agreed to in writing, software[m
+[32m+[m[32m  distributed under the License is distributed on an "AS IS" BASIS,[m
+[32m+[m[32m  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[m
+[32m+[m[32m  See the License for the specific language governing permissions and[m
+[32m+[m[32m  limitations under the License.[m
+[32m+[m[32m-->[m
+[32m+[m[32m<web-app xmlns="http://java.sun.com/xml/ns/javaee"[m
+[32m+[m[32m    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"[m
+[32m+[m[32m    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"[m
+[32m+[m[32m    version="2.5">[m
+[32m+[m
+[32m+[m[32m  <!-- ======================== Introduction ============================== -->[m
+[32m+[m[32m  <!-- This document defines default values for *all* web applications      -->[m
+[32m+[m[32m  <!-- loaded into this instance of Tomcat.  As each application is         -->[m
+[32m+[m[32m  <!-- deployed, this file is processed, followed by the                    -->[m
+[32m+[m[32m  <!-- "/WEB-INF/web.xml" deployment descriptor from your own               -->[m
+[32m+[m[32m  <!-- applications.                                                        -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!-- WARNING:  Do not configure application-specific resources here!      -->[m
+[32m+[m[32m  <!-- They should go in the "/WEB-INF/web.xml" file in your application.   -->[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  <!-- ================== Built In Servlet Definitions ==================== -->[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  <!-- The default servlet for all web applications, that serves static     -->[m
+[32m+[m[32m  <!-- resources.  It processes all requests that are not mapped to other   -->[m
+[32m+[m[32m  <!-- servlets with servlet mappings (defined either here or in your own   -->[m
+[32m+[m[32m  <!-- web.xml file.  This servlet supports the following initialization    -->[m
+[32m+[m[32m  <!-- parameters (default values are in square brackets):                  -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   debug               Debugging detail level for messages logged     -->[m
+[32m+[m[32m  <!--                       by this servlet.  [0]                          -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   fileEncoding        Encoding to be used to read static resources   -->[m
+[32m+[m[32m  <!--                       [platform default]                             -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   input               Input buffer size (in bytes) when reading      -->[m
+[32m+[m[32m  <!--                       resources to be served.  [2048]                -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   listings            Should directory listings be produced if there -->[m
+[32m+[m[32m  <!--                       is no welcome file in this directory?  [false] -->[m
+[32m+[m[32m  <!--                       WARNING: Listings for directories with many    -->[m
+[32m+[m[32m  <!--                       entries can be slow and may consume            -->[m
+[32m+[m[32m  <!--                       significant proportions of server resources.   -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   output              Output buffer size (in bytes) when writing     -->[m
+[32m+[m[32m  <!--                       resources to be served.  [2048]                -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   readonly            Is this context "read only", so HTTP           -->[m
+[32m+[m[32m  <!--                       commands like PUT and DELETE are               -->[m
+[32m+[m[32m  <!--                       rejected?  [true]                              -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   readmeFile          File name to display with the directory        -->[m
+[32m+[m[32m  <!--                       contents. [null]                               -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   sendfileSize        If the connector used supports sendfile, this  -->[m
+[32m+[m[32m  <!--                       represents the minimal file size in KB for     -->[m
+[32m+[m[32m  <!--                       which sendfile will be used. Use a negative    -->[m
+[32m+[m[32m  <!--                       value to always disable sendfile.  [48]        -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--  For directory listing customization. Checks localXsltFile, then     -->[m
+[32m+[m[32m  <!--  globalXsltFile, then defaults to original behavior.                 -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   localXsltFile       Make directory listings an XML doc and         -->[m
+[32m+[m[32m  <!--                       pass the result to this style sheet residing   -->[m
+[32m+[m[32m  <!--                       in that directory. This overrides              -->[m
+[32m+[m[32m  <!--                        globalXsltFile[null]                          -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   globalXsltFile      Site wide configuration version of             -->[m
+[32m+[m[32m  <!--                       localXsltFile This argument is expected        -->[m
+[32m+[m[32m  <!--                       to be a physical file. [null]                  -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m
+[32m+[m[32m    <servlet>[m
+[32m+[m[32m        <servlet-name>default</servlet-name>[m
+[32m+[m[32m        <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m            <param-name>debug</param-name>[m
+[32m+[m[32m            <param-value>0</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m            <param-name>listings</param-name>[m
+[32m+[m[32m            <param-value>false</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m        <load-on-startup>1</load-on-startup>[m
+[32m+[m[32m    </servlet>[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  <!-- The "invoker" servlet, which executes anonymous servlet classes      -->[m
+[32m+[m[32m  <!-- that have not been defined in a web.xml file.  Traditionally, this   -->[m
+[32m+[m[32m  <!-- servlet is mapped to the URL pattern "/servlet/*", but you can map   -->[m
+[32m+[m[32m  <!-- it to other patterns as well.  The extra path info portion of such a -->[m
+[32m+[m[32m  <!-- request must be the fully qualified class name of a Java class that  -->[m
+[32m+[m[32m  <!-- implements Servlet (or extends HttpServlet), or the servlet name     -->[m
+[32m+[m[32m  <!-- of an existing servlet definition.     This servlet supports the     -->[m
+[32m+[m[32m  <!-- following initialization parameters (default values are in square    -->[m
+[32m+[m[32m  <!-- brackets):                                                           -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   debug               Debugging detail level for messages logged     -->[m
+[32m+[m[32m  <!--                       by this servlet.  [0]                          -->[m
+[32m+[m
+[32m+[m[32m<!--[m
+[32m+[m[32m    <servlet>[m
+[32m+[m[32m        <servlet-name>invoker</servlet-name>[m
+[32m+[m[32m        <servlet-class>[m
+[32m+[m[32m          org.apache.catalina.servlets.InvokerServlet[m
+[32m+[m[32m        </servlet-class>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m            <param-name>debug</param-name>[m
+[32m+[m[32m            <param-value>0</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m        <load-on-startup>2</load-on-startup>[m
+[32m+[m[32m    </servlet>[m
+[32m+[m[32m-->[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  <!-- The JSP page compiler and execution servlet, which is the mechanism  -->[m
+[32m+[m[32m  <!-- used by Tomcat to support JSP pages.  Traditionally, this servlet    -->[m
+[32m+[m[32m  <!-- is mapped to the URL pattern "*.jsp".  This servlet supports the     -->[m
+[32m+[m[32m  <!-- following initialization parameters (default values are in square    -->[m
+[32m+[m[32m  <!-- brackets):                                                           -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   checkInterval       If development is false and checkInterval is   -->[m
+[32m+[m[32m  <!--                       greater than zero, background compilations are -->[m
+[32m+[m[32m  <!--                       enabled. checkInterval is the time in seconds  -->[m
+[32m+[m[32m  <!--                       between checks to see if a JSP page (and its   -->[m
+[32m+[m[32m  <!--                       dependent files) needs to  be recompiled. [0]  -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   classdebuginfo      Should the class file be compiled with         -->[m
+[32m+[m[32m  <!--                       debugging information?  [true]                 -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   classpath           What class path should I use while compiling   -->[m
+[32m+[m[32m  <!--                       generated servlets?  [Created dynamically      -->[m
+[32m+[m[32m  <!--                       based on the current web application]          -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   compiler            Which compiler Ant should use to compile JSP   -->[m
+[32m+[m[32m  <!--                       pages.  See the jasper documentation for more  -->[m
+[32m+[m[32m  <!--                       information.                                   -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   compilerSourceVM    Compiler source VM                             -->[m
+[32m+[m[32m  <!--                       default is System.properties                   -->[m
+[32m+[m[32m  <!--                        java.specification.version > 1.4              -->[m
+[32m+[m[32m  <!--                        [1.5] else [1.4]                              -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   compilerTargetVM    Compiler target VM                             -->[m[41m  [m
+[32m+[m[32m  <!--                       default is System.properties                   -->[m
+[32m+[m[32m  <!--                        java.specification.version > 1.4              -->[m
+[32m+[m[32m  <!--                        [1.5] else [1.4]                              -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   development         Is Jasper used in development mode? If true,   -->[m
+[32m+[m[32m  <!--                       the frequency at which JSPs are checked for    -->[m
+[32m+[m[32m  <!--                       modification may be specified via the          -->[m
+[32m+[m[32m  <!--                       modificationTestInterval parameter. [true]     -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   displaySourceFragment                                              -->[m
+[32m+[m[32m  <!--                       Should a source fragment be included in        -->[m
+[32m+[m[32m  <!--                       exception messages? [true]                     -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   dumpSmap            Should the SMAP info for JSR45 debugging be    -->[m
+[32m+[m[32m  <!--                       dumped to a file? [false]                      -->[m
+[32m+[m[32m  <!--                       False if suppressSmap is true                  -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   enablePooling       Determines whether tag handler pooling is      -->[m
+[32m+[m[32m  <!--                       enabled  [true]                                -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   engineOptionsClass  Allows specifying the Options class used to    -->[m
+[32m+[m[32m  <!--                       configure Jasper. If not present, the default  -->[m
+[32m+[m[32m  <!--                       EmbeddedServletOptions will be used.           -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   errorOnUseBeanInvalidClassAttribute                                -->[m
+[32m+[m[32m  <!--                       Should Jasper issue an error when the value of -->[m
+[32m+[m[32m  <!--                       the class attribute in an useBean action is    -->[m
+[32m+[m[32m  <!--                       not a valid bean class?  [true]                -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   fork                Tell Ant to fork compiles of JSP pages so that -->[m
+[32m+[m[32m  <!--                       a separate JVM is used for JSP page compiles   -->[m
+[32m+[m[32m  <!--                       from the one Tomcat is running in. [true]      -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   genStrAsCharArray   Should text strings be generated as char       -->[m
+[32m+[m[32m  <!--                       arrays, to improve performance in some cases?  -->[m
+[32m+[m[32m  <!--                       [false]                                        -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   ieClassId           The class-id value to be sent to Internet      -->[m
+[32m+[m[32m  <!--                       Explorer when using <jsp:plugin> tags.         -->[m
+[32m+[m[32m  <!--                       [clsid:8AD9C840-044E-11D1-B3E9-00805F499D93]   -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   javaEncoding        Java file encoding to use for generating java  -->[m
+[32m+[m[32m  <!--                       source files. [UTF8]                           -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   keepgenerated       Should we keep the generated Java source code  -->[m
+[32m+[m[32m  <!--                       for each page instead of deleting it? [true]   -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   mappedfile          Should we generate static content with one     -->[m
+[32m+[m[32m  <!--                       print statement per input line, to ease        -->[m
+[32m+[m[32m  <!--                       debugging?  [true]                             -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   modificationTestInterval                                           -->[m
+[32m+[m[32m  <!--                       Causes a JSP (and its dependent files) to not  -->[m
+[32m+[m[32m  <!--                       be checked for modification during the         -->[m
+[32m+[m[32m  <!--                       specified time interval (in seconds) from the  -->[m
+[32m+[m[32m  <!--                       last time the JSP was checked for              -->[m
+[32m+[m[32m  <!--                       modification. A value of 0 will cause the JSP  -->[m
+[32m+[m[32m  <!--                       to be checked on every access.                 -->[m
+[32m+[m[32m  <!--                       Used in development mode only. [4]             -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   scratchdir          What scratch directory should we use when      -->[m
+[32m+[m[32m  <!--                       compiling JSP pages?  [default work directory  -->[m
+[32m+[m[32m  <!--                       for the current web application]               -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   suppressSmap        Should the generation of SMAP info for JSR45   -->[m
+[32m+[m[32m  <!--                       debugging be suppressed?  [false]              -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   trimSpaces          Should white spaces in template text between   -->[m
+[32m+[m[32m  <!--                       actions or directives be trimmed?  [false]     -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   xpoweredBy          Determines whether X-Powered-By response       -->[m
+[32m+[m[32m  <!--                       header is added by generated servlet  [false]  -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!-- If you wish to use Jikes to compile JSP pages:                       -->[m
+[32m+[m[32m  <!--   Please see the "Using Jikes" section of the Jasper-HowTo           -->[m
+[32m+[m[32m  <!--   page in the Tomcat documentation.                                  -->[m
+[32m+[m
+[32m+[m[32m    <servlet>[m
+[32m+[m[32m        <servlet-name>jsp</servlet-name>[m
+[32m+[m[32m        <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m            <param-name>fork</param-name>[m
+[32m+[m[32m            <param-value>false</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m            <param-name>xpoweredBy</param-name>[m
+[32m+[m[32m            <param-value>false</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m        <load-on-startup>3</load-on-startup>[m
+[32m+[m[32m    </servlet>[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  <!-- NOTE: An SSI Filter is also available as an alternative SSI          -->[m
+[32m+[m[32m  <!-- implementation. Use either the Servlet or the Filter but NOT both.   -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!-- Server Side Includes processing servlet, which processes SSI         -->[m
+[32m+[m[32m  <!-- directives in HTML pages consistent with similar support in web      -->[m
+[32m+[m[32m  <!-- servers like Apache.  Traditionally, this servlet is mapped to the   -->[m
+[32m+[m[32m  <!-- URL pattern "*.shtml".  This servlet supports the following          -->[m
+[32m+[m[32m  <!-- initialization parameters (default values are in square brackets):   -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   buffered            Should output from this servlet be buffered?   -->[m
+[32m+[m[32m  <!--                       (0=false, 1=true)  [0]                         -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   debug               Debugging detail level for messages logged     -->[m
+[32m+[m[32m  <!--                       by this servlet.  [0]                          -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   expires             The number of seconds before a page with SSI   -->[m
+[32m+[m[32m  <!--                       directives will expire.  [No default]          -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   isVirtualWebappRelative                                            -->[m
+[32m+[m[32m  <!--                       Should "virtual" paths be interpreted as       -->[m
+[32m+[m[32m  <!--                       relative to the context root, instead of       -->[m
+[32m+[m[32m  <!--                       the server root?  (0=false, 1=true) [0]        -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   inputEncoding       The encoding to assume for SSI resources if    -->[m
+[32m+[m[32m  <!--                       one is not available from the resource.        -->[m
+[32m+[m[32m  <!--                       [Platform default]                             -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   outputEncoding      The encoding to use for the page that results  -->[m
+[32m+[m[32m  <!--                       from the SSI processing. [UTF-8]               -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!-- IMPORTANT: To use the SSI servlet, you also need to rename the       -->[m
+[32m+[m[32m  <!--            $CATALINA_HOME/server/lib/servlets-ssi.renametojar file   -->[m
+[32m+[m[32m  <!--            to $CATALINA_HOME/server/lib/servlets-ssi.jar             -->[m
+[32m+[m
+[32m+[m[32m<!--[m
+[32m+[m[32m    <servlet>[m
+[32m+[m[32m        <servlet-name>ssi</servlet-name>[m
+[32m+[m[32m        <servlet-class>[m
+[32m+[m[32m          org.apache.catalina.ssi.SSIServlet[m
+[32m+[m[32m        </servlet-class>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m          <param-name>buffered</param-name>[m
+[32m+[m[32m          <param-value>1</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m          <param-name>debug</param-name>[m
+[32m+[m[32m          <param-value>0</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m          <param-name>expires</param-name>[m
+[32m+[m[32m          <param-value>666</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m          <param-name>isVirtualWebappRelative</param-name>[m
+[32m+[m[32m          <param-value>0</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m        <load-on-startup>4</load-on-startup>[m
+[32m+[m[32m    </servlet>[m
+[32m+[m[32m-->[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  <!-- Common Gateway Includes (CGI) processing servlet, which supports     -->[m
+[32m+[m[32m  <!-- execution of external applications that conform to the CGI spec      -->[m
+[32m+[m[32m  <!-- requirements.  Typically, this servlet is mapped to the URL pattern  -->[m
+[32m+[m[32m  <!-- "/cgi-bin/*", which means that any CGI applications that are         -->[m
+[32m+[m[32m  <!-- executed must be present within the web application.  This servlet   -->[m
+[32m+[m[32m  <!-- supports the following initialization parameters (default values     -->[m
+[32m+[m[32m  <!-- are in square brackets):                                             -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   cgiPathPrefix        The CGI search path will start at             -->[m
+[32m+[m[32m  <!--                        webAppRootDir + File.separator + this prefix. -->[m
+[32m+[m[32m  <!--                        [WEB-INF/cgi]                                 -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   debug                Debugging detail level for messages logged    -->[m
+[32m+[m[32m  <!--                        by this servlet.  [0]                         -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   executable           Name of the exectuable used to run the        -->[m
+[32m+[m[32m  <!--                        script. [perl]                                -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   parameterEncoding    Name of parameter encoding to be used with    -->[m
+[32m+[m[32m  <!--                        CGI servlet.                                  -->[m
+[32m+[m[32m  <!--                        [System.getProperty("file.encoding","UTF-8")] -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   passShellEnvironment Should the shell environment variables (if    -->[m
+[32m+[m[32m  <!--                        any) be passed to the CGI script? [false]     -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!-- IMPORTANT: To use the CGI servlet, you also need to rename the       -->[m
+[32m+[m[32m  <!--            $CATALINA_HOME/server/lib/servlets-cgi.renametojar file   -->[m
+[32m+[m[32m  <!--            to $CATALINA_HOME/server/lib/servlets-cgi.jar             -->[m
+[32m+[m
+[32m+[m[32m<!--[m
+[32m+[m[32m    <servlet>[m
+[32m+[m[32m        <servlet-name>cgi</servlet-name>[m
+[32m+[m[32m        <servlet-class>org.apache.catalina.servlets.CGIServlet</servlet-class>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m          <param-name>debug</param-name>[m
+[32m+[m[32m          <param-value>0</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m          <param-name>cgiPathPrefix</param-name>[m
+[32m+[m[32m          <param-value>WEB-INF/cgi</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m         <load-on-startup>5</load-on-startup>[m
+[32m+[m[32m    </servlet>[m
+[32m+[m[32m-->[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  <!-- ================ Built In Servlet Mappings ========================= -->[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  <!-- The servlet mappings for the built in servlets defined above.  Note  -->[m
+[32m+[m[32m  <!-- that, by default, the CGI and SSI servlets are *not* mapped.  You    -->[m
+[32m+[m[32m  <!-- must uncomment these mappings (or add them to your application's own -->[m
+[32m+[m[32m  <!-- web.xml deployment descriptor) to enable these services              -->[m
+[32m+[m
+[32m+[m[32m    <!-- The mapping for the default servlet -->[m
+[32m+[m[32m    <servlet-mapping>[m
+[32m+[m[32m        <servlet-name>default</servlet-name>[m
+[32m+[m[32m        <url-pattern>/</url-pattern>[m
+[32m+[m[32m    </servlet-mapping>[m
+[32m+[m
+[32m+[m[32m    <!-- The mapping for the invoker servlet -->[m
+[32m+[m[32m<!--[m
+[32m+[m[32m    <servlet-mapping>[m
+[32m+[m[32m        <servlet-name>invoker</servlet-name>[m
+[32m+[m[32m        <url-pattern>/servlet/*</url-pattern>[m
+[32m+[m[32m    </servlet-mapping>[m
+[32m+[m[32m-->[m
+[32m+[m
+[32m+[m[32m    <!-- The mapping for the JSP servlet -->[m
+[32m+[m[32m    <servlet-mapping>[m
+[32m+[m[32m        <servlet-name>jsp</servlet-name>[m
+[32m+[m[32m        <url-pattern>*.jsp</url-pattern>[m
+[32m+[m[32m    </servlet-mapping>[m
+[32m+[m
+[32m+[m[32m    <servlet-mapping>[m
+[32m+[m[32m        <servlet-name>jsp</servlet-name>[m
+[32m+[m[32m        <url-pattern>*.jspx</url-pattern>[m
+[32m+[m[32m    </servlet-mapping>[m
+[32m+[m
+[32m+[m[32m    <!-- The mapping for the SSI servlet -->[m
+[32m+[m[32m<!--[m
+[32m+[m[32m    <servlet-mapping>[m
+[32m+[m[32m        <servlet-name>ssi</servlet-name>[m
+[32m+[m[32m        <url-pattern>*.shtml</url-pattern>[m
+[32m+[m[32m    </servlet-mapping>[m
+[32m+[m[32m-->[m
+[32m+[m
+[32m+[m[32m    <!-- The mapping for the CGI Gateway servlet -->[m
+[32m+[m
+[32m+[m[32m<!--[m
+[32m+[m[32m    <servlet-mapping>[m
+[32m+[m[32m        <servlet-name>cgi</servlet-name>[m
+[32m+[m[32m        <url-pattern>/cgi-bin/*</url-pattern>[m
+[32m+[m[32m    </servlet-mapping>[m
+[32m+[m[32m-->[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  <!-- ================== Built In Filter Definitions ===================== -->[m
+[32m+[m
+[32m+[m[32m  <!-- NOTE: An SSI Servlet is also available as an alternative SSI         -->[m
+[32m+[m[32m  <!-- implementation. Use either the Servlet or the Filter but NOT both.   -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!-- Server Side Includes processing filter, which processes SSI          -->[m
+[32m+[m[32m  <!-- directives in HTML pages consistent with similar support in web      -->[m
+[32m+[m[32m  <!-- servers like Apache.  Traditionally, this filter is mapped to the    -->[m
+[32m+[m[32m  <!-- URL pattern "*.shtml", though it can be mapped to "*" as it will     -->[m
+[32m+[m[32m  <!-- selectively enable/disable SSI processing based on mime types. For   -->[m
+[32m+[m[32m  <!-- this to work you will need to uncomment the .shtml mime type         -->[m
+[32m+[m[32m  <!-- definition towards the bottom of this file.                          -->[m
+[32m+[m[32m  <!-- The contentType init param allows you to apply SSI processing to JSP -->[m
+[32m+[m[32m  <!-- pages, javascript, or any other content you wish.  This filter       -->[m
+[32m+[m[32m  <!-- supports the following initialization parameters (default values are -->[m
+[32m+[m[32m  <!-- in square brackets):                                                 -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   contentType         A regex pattern that must be matched before    -->[m
+[32m+[m[32m  <!--                       SSI processing is applied.                     -->[m
+[32m+[m[32m  <!--                       [text/x-server-parsed-html(;.*)?]              -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   debug               Debugging detail level for messages logged     -->[m
+[32m+[m[32m  <!--                       by this servlet.  [0]                          -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   expires             The number of seconds before a page with SSI   -->[m
+[32m+[m[32m  <!--                       directives will expire.  [No default]          -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--   isVirtualWebappRelative                                            -->[m
+[32m+[m[32m  <!--                       Should "virtual" paths be interpreted as       -->[m
+[32m+[m[32m  <!--                       relative to the context root, instead of       -->[m
+[32m+[m[32m  <!--                       the server root?  (0=false, 1=true) [0]        -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!-- IMPORTANT: To use the SSI filter, you also need to rename the        -->[m
+[32m+[m[32m  <!--            $CATALINA_HOME/server/lib/servlets-ssi.renametojar file   -->[m
+[32m+[m[32m  <!--            to $CATALINA_HOME/server/lib/servlets-ssi.jar             -->[m
+[32m+[m
+[32m+[m[32m<!--[m
+[32m+[m[32m    <filter>[m
+[32m+[m[32m        <filter-name>ssi</filter-name>[m
+[32m+[m[32m        <filter-class>[m
+[32m+[m[32m          org.apache.catalina.ssi.SSIFilter[m
+[32m+[m[32m        </filter-class>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m          <param-name>contentType</param-name>[m
+[32m+[m[32m          <param-value>text/x-server-parsed-html(;.*)?</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m          <param-name>debug</param-name>[m
+[32m+[m[32m          <param-value>0</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m          <param-name>expires</param-name>[m
+[32m+[m[32m          <param-value>666</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m        <init-param>[m
+[32m+[m[32m          <param-name>isVirtualWebappRelative</param-name>[m
+[32m+[m[32m          <param-value>0</param-value>[m
+[32m+[m[32m        </init-param>[m
+[32m+[m[32m    </filter>[m
+[32m+[m[32m-->[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  <!-- ==================== Built In Filter Mappings ====================== -->[m
+[32m+[m
+[32m+[m[32m  <!-- The mapping for the SSI Filter -->[m
+[32m+[m[32m<!--[m
+[32m+[m[32m    <filter-mapping>[m
+[32m+[m[32m        <filter-name>ssi</filter-name>[m
+[32m+[m[32m        <url-pattern>*.shtml</url-pattern>[m
+[32m+[m[32m    </filter-mapping>[m
+[32m+[m[32m-->[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  <!-- ==================== Default Session Configuration ================= -->[m
+[32m+[m[32m  <!-- You can set the default session timeout (in minutes) for all newly   -->[m
+[32m+[m[32m  <!-- created sessions by modifying the value below.                       -->[m
+[32m+[m
+[32m+[m[32m    <session-config>[m
+[32m+[m[32m        <session-timeout>30</session-timeout>[m
+[32m+[m[32m    </session-config>[m
+[32m+[m
+[32m+[m
+[32m+[m[32m  <!-- ===================== Default MIME Type Mappings =================== -->[m
+[32m+[m[32m  <!-- When serving static resources, Tomcat will automatically generate    -->[m
+[32m+[m[32m  <!-- a "Content-Type" header based on the resource's filename extension,  -->[m
+[32m+[m[32m  <!-- based on these mappings.  Additional mappings can be added here (to  -->[m
+[32m+[m[32m  <!-- apply to all web applications), or in your own application's web.xml -->[m
+[32m+[m[32m  <!-- deployment descriptor.                                               -->[m
+[32m+[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>abs</extension>[m
+[32m+[m[32m        <mime-type>audio/x-mpeg</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>ai</extension>[m
+[32m+[m[32m        <mime-type>application/postscript</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>aif</extension>[m
+[32m+[m[32m        <mime-type>audio/x-aiff</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>aifc</extension>[m
+[32m+[m[32m        <mime-type>audio/x-aiff</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>aiff</extension>[m
+[32m+[m[32m        <mime-type>audio/x-aiff</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>aim</extension>[m
+[32m+[m[32m        <mime-type>application/x-aim</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>art</extension>[m
+[32m+[m[32m        <mime-type>image/x-jg</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>asf</extension>[m
+[32m+[m[32m        <mime-type>video/x-ms-asf</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>asx</extension>[m
+[32m+[m[32m        <mime-type>video/x-ms-asf</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>au</extension>[m
+[32m+[m[32m        <mime-type>audio/basic</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>avi</extension>[m
+[32m+[m[32m        <mime-type>video/x-msvideo</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>avx</extension>[m
+[32m+[m[32m        <mime-type>video/x-rad-screenplay</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>bcpio</extension>[m
+[32m+[m[32m        <mime-type>application/x-bcpio</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>bin</extension>[m
+[32m+[m[32m        <mime-type>application/octet-stream</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>bmp</extension>[m
+[32m+[m[32m        <mime-type>image/bmp</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>body</extension>[m
+[32m+[m[32m        <mime-type>text/html</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>cdf</extension>[m
+[32m+[m[32m        <mime-type>application/x-cdf</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>cer</extension>[m
+[32m+[m[32m        <mime-type>application/x-x509-ca-cert</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>class</extension>[m
+[32m+[m[32m        <mime-type>application/java</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>cpio</extension>[m
+[32m+[m[32m        <mime-type>application/x-cpio</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>csh</extension>[m
+[32m+[m[32m        <mime-type>application/x-csh</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>css</extension>[m
+[32m+[m[32m        <mime-type>text/css</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>dib</extension>[m
+[32m+[m[32m        <mime-type>image/bmp</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>doc</extension>[m
+[32m+[m[32m        <mime-type>application/msword</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>dtd</extension>[m
+[32m+[m[32m        <mime-type>application/xml-dtd</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>dv</extension>[m
+[32m+[m[32m        <mime-type>video/x-dv</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>dvi</extension>[m
+[32m+[m[32m        <mime-type>application/x-dvi</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>eps</extension>[m
+[32m+[m[32m        <mime-type>application/postscript</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>etx</extension>[m
+[32m+[m[32m        <mime-type>text/x-setext</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>exe</extension>[m
+[32m+[m[32m        <mime-type>application/octet-stream</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>gif</extension>[m
+[32m+[m[32m        <mime-type>image/gif</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>gtar</extension>[m
+[32m+[m[32m        <mime-type>application/x-gtar</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>gz</extension>[m
+[32m+[m[32m        <mime-type>application/x-gzip</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>hdf</extension>[m
+[32m+[m[32m        <mime-type>application/x-hdf</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>hqx</extension>[m
+[32m+[m[32m        <mime-type>application/mac-binhex40</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>htc</extension>[m
+[32m+[m[32m        <mime-type>text/x-component</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>htm</extension>[m
+[32m+[m[32m        <mime-type>text/html</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>html</extension>[m
+[32m+[m[32m        <mime-type>text/html</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>hqx</extension>[m
+[32m+[m[32m        <mime-type>application/mac-binhex40</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>ief</extension>[m
+[32m+[m[32m        <mime-type>image/ief</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>jad</extension>[m
+[32m+[m[32m        <mime-type>text/vnd.sun.j2me.app-descriptor</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>jar</extension>[m
+[32m+[m[32m        <mime-type>application/java-archive</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>java</extension>[m
+[32m+[m[32m        <mime-type>text/plain</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>jnlp</extension>[m
+[32m+[m[32m        <mime-type>application/x-java-jnlp-file</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>jpe</extension>[m
+[32m+[m[32m        <mime-type>image/jpeg</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>jpeg</extension>[m
+[32m+[m[32m        <mime-type>image/jpeg</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>jpg</extension>[m
+[32m+[m[32m        <mime-type>image/jpeg</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>js</extension>[m
+[32m+[m[32m        <mime-type>text/javascript</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>jsf</extension>[m
+[32m+[m[32m        <mime-type>text/plain</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>jspf</extension>[m
+[32m+[m[32m        <mime-type>text/plain</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>kar</extension>[m
+[32m+[m[32m        <mime-type>audio/x-midi</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>latex</extension>[m
+[32m+[m[32m        <mime-type>application/x-latex</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>m3u</extension>[m
+[32m+[m[32m        <mime-type>audio/x-mpegurl</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mac</extension>[m
+[32m+[m[32m        <mime-type>image/x-macpaint</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>man</extension>[m
+[32m+[m[32m        <mime-type>application/x-troff-man</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mathml</extension>[m
+[32m+[m[32m        <mime-type>application/mathml+xml</mime-type>[m[41m [m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>me</extension>[m
+[32m+[m[32m        <mime-type>application/x-troff-me</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mid</extension>[m
+[32m+[m[32m        <mime-type>audio/x-midi</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>midi</extension>[m
+[32m+[m[32m        <mime-type>audio/x-midi</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mif</extension>[m
+[32m+[m[32m        <mime-type>application/x-mif</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mov</extension>[m
+[32m+[m[32m        <mime-type>video/quicktime</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>movie</extension>[m
+[32m+[m[32m        <mime-type>video/x-sgi-movie</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mp1</extension>[m
+[32m+[m[32m        <mime-type>audio/x-mpeg</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mp2</extension>[m
+[32m+[m[32m        <mime-type>audio/x-mpeg</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mp3</extension>[m
+[32m+[m[32m        <mime-type>audio/x-mpeg</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mp4</extension>[m
+[32m+[m[32m        <mime-type>video/mp4</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mpa</extension>[m
+[32m+[m[32m        <mime-type>audio/x-mpeg</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mpe</extension>[m
+[32m+[m[32m        <mime-type>video/mpeg</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mpeg</extension>[m
+[32m+[m[32m        <mime-type>video/mpeg</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mpega</extension>[m
+[32m+[m[32m        <mime-type>audio/x-mpeg</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mpg</extension>[m
+[32m+[m[32m        <mime-type>video/mpeg</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>mpv2</extension>[m
+[32m+[m[32m        <mime-type>video/mpeg2</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>ms</extension>[m
+[32m+[m[32m        <mime-type>application/x-wais-source</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>nc</extension>[m
+[32m+[m[32m        <mime-type>application/x-netcdf</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>oda</extension>[m
+[32m+[m[32m        <mime-type>application/oda</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- OpenDocument Database -->[m
+[32m+[m[32m        <extension>odb</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.oasis.opendocument.database</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- OpenDocument Chart -->[m
+[32m+[m[32m        <extension>odc</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.oasis.opendocument.chart</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- OpenDocument Formula -->[m
+[32m+[m[32m        <extension>odf</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.oasis.opendocument.formula</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- OpenDocument Drawing -->[m
+[32m+[m[32m        <extension>odg</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.oasis.opendocument.graphics</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- OpenDocument Image -->[m
+[32m+[m[32m        <extension>odi</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.oasis.opendocument.image</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- OpenDocument Master Document -->[m
+[32m+[m[32m        <extension>odm</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.oasis.opendocument.text-master</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- OpenDocument Presentation -->[m
+[32m+[m[32m        <extension>odp</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.oasis.opendocument.presentation</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- OpenDocument Spreadsheet -->[m
+[32m+[m[32m        <extension>ods</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.oasis.opendocument.spreadsheet</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- OpenDocument Text -->[m
+[32m+[m[32m        <extension>odt</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.oasis.opendocument.text</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>ogg</extension>[m
+[32m+[m[32m        <mime-type>application/ogg</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- OpenDocument Drawing Template -->[m
+[32m+[m[32m        <extension>otg </extension>[m
+[32m+[m[32m        <mime-type>application/vnd.oasis.opendocument.graphics-template</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- HTML Document Template -->[m
+[32m+[m[32m        <extension>oth</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.oasis.opendocument.text-web</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- OpenDocument Presentation Template -->[m
+[32m+[m[32m        <extension>otp</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.oasis.opendocument.presentation-template</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- OpenDocument Spreadsheet Template -->[m
+[32m+[m[32m        <extension>ots</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.oasis.opendocument.spreadsheet-template </mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- OpenDocument Text Template -->[m
+[32m+[m[32m        <extension>ott</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.oasis.opendocument.text-template</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>pbm</extension>[m
+[32m+[m[32m        <mime-type>image/x-portable-bitmap</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>pct</extension>[m
+[32m+[m[32m        <mime-type>image/pict</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>pdf</extension>[m
+[32m+[m[32m        <mime-type>application/pdf</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>pgm</extension>[m
+[32m+[m[32m        <mime-type>image/x-portable-graymap</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>pic</extension>[m
+[32m+[m[32m        <mime-type>image/pict</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>pict</extension>[m
+[32m+[m[32m        <mime-type>image/pict</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>pls</extension>[m
+[32m+[m[32m        <mime-type>audio/x-scpls</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>png</extension>[m
+[32m+[m[32m        <mime-type>image/png</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>pnm</extension>[m
+[32m+[m[32m        <mime-type>image/x-portable-anymap</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>pnt</extension>[m
+[32m+[m[32m        <mime-type>image/x-macpaint</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>ppm</extension>[m
+[32m+[m[32m        <mime-type>image/x-portable-pixmap</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>ppt</extension>[m
+[32m+[m[32m        <mime-type>application/powerpoint</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>ps</extension>[m
+[32m+[m[32m        <mime-type>application/postscript</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>psd</extension>[m
+[32m+[m[32m        <mime-type>image/x-photoshop</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>qt</extension>[m
+[32m+[m[32m        <mime-type>video/quicktime</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>qti</extension>[m
+[32m+[m[32m        <mime-type>image/x-quicktime</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>qtif</extension>[m
+[32m+[m[32m        <mime-type>image/x-quicktime</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>ras</extension>[m
+[32m+[m[32m        <mime-type>image/x-cmu-raster</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>rdf</extension>[m
+[32m+[m[32m        <mime-type>application/rdf+xml</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>rgb</extension>[m
+[32m+[m[32m        <mime-type>image/x-rgb</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>rm</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.rn-realmedia</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>roff</extension>[m
+[32m+[m[32m        <mime-type>application/x-troff</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>rtf</extension>[m
+[32m+[m[32m        <mime-type>application/rtf</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>rtx</extension>[m
+[32m+[m[32m        <mime-type>text/richtext</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>sh</extension>[m
+[32m+[m[32m        <mime-type>application/x-sh</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>shar</extension>[m
+[32m+[m[32m        <mime-type>application/x-shar</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m<!--[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>shtml</extension>[m
+[32m+[m[32m        <mime-type>text/x-server-parsed-html</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m-->[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>smf</extension>[m
+[32m+[m[32m        <mime-type>audio/x-midi</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>sit</extension>[m
+[32m+[m[32m        <mime-type>application/x-stuffit</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>snd</extension>[m
+[32m+[m[32m        <mime-type>audio/basic</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>src</extension>[m
+[32m+[m[32m        <mime-type>application/x-wais-source</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>sv4cpio</extension>[m
+[32m+[m[32m        <mime-type>application/x-sv4cpio</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>sv4crc</extension>[m
+[32m+[m[32m        <mime-type>application/x-sv4crc</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>swf</extension>[m
+[32m+[m[32m        <mime-type>application/x-shockwave-flash</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>t</extension>[m
+[32m+[m[32m        <mime-type>application/x-troff</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>tar</extension>[m
+[32m+[m[32m        <mime-type>application/x-tar</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>tcl</extension>[m
+[32m+[m[32m        <mime-type>application/x-tcl</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>tex</extension>[m
+[32m+[m[32m        <mime-type>application/x-tex</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>texi</extension>[m
+[32m+[m[32m        <mime-type>application/x-texinfo</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>texinfo</extension>[m
+[32m+[m[32m        <mime-type>application/x-texinfo</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>tif</extension>[m
+[32m+[m[32m        <mime-type>image/tiff</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>tiff</extension>[m
+[32m+[m[32m        <mime-type>image/tiff</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>tr</extension>[m
+[32m+[m[32m        <mime-type>application/x-troff</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>tsv</extension>[m
+[32m+[m[32m        <mime-type>text/tab-separated-values</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>txt</extension>[m
+[32m+[m[32m        <mime-type>text/plain</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>ulw</extension>[m
+[32m+[m[32m        <mime-type>audio/basic</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>ustar</extension>[m
+[32m+[m[32m        <mime-type>application/x-ustar</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>vxml</extension>[m
+[32m+[m[32m        <mime-type>application/voicexml+xml</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>xbm</extension>[m
+[32m+[m[32m        <mime-type>image/x-xbitmap</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>xht</extension>[m
+[32m+[m[32m        <mime-type>application/xhtml+xml</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>xhtml</extension>[m
+[32m+[m[32m        <mime-type>application/xhtml+xml</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>xml</extension>[m
+[32m+[m[32m        <mime-type>application/xml</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>xpm</extension>[m
+[32m+[m[32m        <mime-type>image/x-xpixmap</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>xsl</extension>[m
+[32m+[m[32m        <mime-type>application/xml</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>xslt</extension>[m
+[32m+[m[32m        <mime-type>application/xslt+xml</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>xul</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.mozilla.xul+xml</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>xwd</extension>[m
+[32m+[m[32m        <mime-type>image/x-xwindowdump</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>wav</extension>[m
+[32m+[m[32m        <mime-type>audio/x-wav</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>svg</extension>[m
+[32m+[m[32m        <mime-type>image/svg+xml</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>svgz</extension>[m
+[32m+[m[32m        <mime-type>image/svg+xml</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>vsd</extension>[m
+[32m+[m[32m        <mime-type>application/x-visio</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- Wireless Bitmap -->[m
+[32m+[m[32m        <extension>wbmp</extension>[m
+[32m+[m[32m        <mime-type>image/vnd.wap.wbmp</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- WML Source -->[m
+[32m+[m[32m        <extension>wml</extension>[m
+[32m+[m[32m        <mime-type>text/vnd.wap.wml</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- Compiled WML -->[m
+[32m+[m[32m        <extension>wmlc</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.wap.wmlc</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- WML Script Source -->[m
+[32m+[m[32m        <extension>wmls</extension>[m
+[32m+[m[32m        <mime-type>text/vnd.wap.wmlscript</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <!-- Compiled WML Script -->[m
+[32m+[m[32m        <extension>wmlscriptc</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.wap.wmlscriptc</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>wmv</extension>[m
+[32m+[m[32m        <mime-type>video/x-ms-wmv</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>wrl</extension>[m
+[32m+[m[32m        <mime-type>x-world/x-vrml</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>wspolicy</extension>[m
+[32m+[m[32m        <mime-type>application/wspolicy+xml</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>Z</extension>[m
+[32m+[m[32m        <mime-type>application/x-compress</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>z</extension>[m
+[32m+[m[32m        <mime-type>application/x-compress</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>zip</extension>[m
+[32m+[m[32m        <mime-type>application/zip</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>xls</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.ms-excel</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>doc</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.ms-word</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m[32m    <mime-mapping>[m
+[32m+[m[32m        <extension>ppt</extension>[m
+[32m+[m[32m        <mime-type>application/vnd.ms-powerpoint</mime-type>[m
+[32m+[m[32m    </mime-mapping>[m
+[32m+[m
+[32m+[m[32m  <!-- ==================== Default Welcome File List ===================== -->[m
+[32m+[m[32m  <!-- When a request URI refers to a directory, the default servlet looks  -->[m
+[32m+[m[32m  <!-- for a "welcome file" within that directory and, if present,          -->[m
+[32m+[m[32m  <!-- to the corresponding resource URI for display.  If no welcome file   -->[m
+[32m+[m[32m  <!-- is present, the default servlet either serves a directory listing,   -->[m
+[32m+[m[32m  <!-- or returns a 404 status, depending on how it is configured.          -->[m
+[32m+[m[32m  <!--                                                                      -->[m
+[32m+[m[32m  <!-- If you define welcome files in your own application's web.xml        -->[m
+[32m+[m[32m  <!-- deployment descriptor, that list *replaces* the list configured      -->[m
+[32m+[m[32m  <!-- here, so be sure that you include any of the default values that     -->[m
+[32m+[m[32m  <!-- you wish to include.                                                 -->[m
+[32m+[m
+[32m+[m[32m    <welcome-file-list>[m
+[32m+[m[32m        <welcome-file>index.html</welcome-file>[m
+[32m+[m[32m        <welcome-file>index.htm</welcome-file>[m
+[32m+[m[32m        <welcome-file>index.jsp</welcome-file>[m
+[32m+[m[32m    </welcome-file-list>[m
+[32m+[m
+[32m+[m[32m</web-app>[m
